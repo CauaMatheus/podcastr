@@ -11,9 +11,9 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
         <Header />
         <Component {...pageProps} />
       </main>
-      <Player></Player>
+      <Player />
     </div>
-  )
+  );
 };
 
 export default MyApp;

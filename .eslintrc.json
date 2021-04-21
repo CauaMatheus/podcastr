@@ -23,19 +23,15 @@
     "@typescript-eslint"
   ],
   "rules": {
+    "import/no-duplicates": "off",
     "import/extensions": [
-      ".js",
-      ".jsx",
-      ""
-    ],
-    "import/resolver": {
-      "node": {
-        "extensions": [
-          ".js",
-          ".jsx"
-        ]
+      "error",
+      "ignorePackages",
+      {
+        "ts": "never",
+        "tsx": "never"
       }
-    },
+    ],
     "import/prefer-default-export": "off",
     "react/react-in-jsx-scope": "off",
     "react/jsx-props-no-spreading": "off",
@@ -55,6 +51,13 @@
           ".tsx"
         ]
       }
-    ]
+    ],
+    "jsx-a11y/anchor-is-valid": "off",
+    "react/no-danger": "off"
+  },
+  "settings": {
+    "import/resolver": {
+      "typescript": {}
+    }
   }
 }
