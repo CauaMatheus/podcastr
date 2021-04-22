@@ -4,9 +4,11 @@ import { format, parseISO } from 'date-fns';
 import ptBR from 'date-fns/locale/pt-BR';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useContext } from 'react';
 import { api } from '../services/api';
 import { convertDurationToTimeString } from '../utils/convertDurationToTimeString';
 import styles from './home.module.scss';
+import { PlayerContext } from '../contexts/PlayerContext';
 
 type Episode = {
   id: string,
@@ -25,6 +27,8 @@ interface HomeProps extends AppProps {
 }
 
 const Home: React.FC<AppProps> = ({ latestEpisodes, allEpisodes }: HomeProps) => {
+  const { play } = useContext(PlayerContext);
+
   return (
     <div className={styles.homePage}>
       <section className={styles.latestEpisodes}>
@@ -50,7 +54,7 @@ const Home: React.FC<AppProps> = ({ latestEpisodes, allEpisodes }: HomeProps) =>
                   <span>{episode.durationAsString}</span>
                 </div>
 
-                <button type="button">
+                <button type="button" onClick={() => { return play(episode); }}>
                   <img src="/play-green.svg" alt="Tocar Episódio" />
                 </button>
               </li>
@@ -93,7 +97,7 @@ const Home: React.FC<AppProps> = ({ latestEpisodes, allEpisodes }: HomeProps) =>
                   <td width={100}>{episode.publishedAt}</td>
                   <td>{episode.durationAsString}</td>
                   <td>
-                    <button type="button">
+                    <button type="button" onClick={() => { return play(episode); }}>
                       <img src="play-green.svg" alt="Tocar episódio" />
                     </button>
                   </td>

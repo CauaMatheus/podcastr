@@ -53,6 +53,7 @@
       }
     ],
     "jsx-a11y/anchor-is-valid": "off",
+    "jsx-a11y/media-has-caption": "off",
     "react/no-danger": "off"
   },
   "settings": {
