@@ -1,9 +1,10 @@
-import { useContext, useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Slider from 'rc-slider';
-import { PlayerContext } from '../../contexts/PlayerContext';
+import { usePlayerContext } from '../../contexts/PlayerContext';
 import styles from './styles.module.scss';
 import 'rc-slider/assets/index.css';
+import { convertDurationToTimeString } from '../../utils/convertDurationToTimeString';
 
 const Player: React.FC = () => {
   const {
@@ -12,10 +13,42 @@ const Player: React.FC = () => {
     isPlaying,
     togglePlay,
     setPlayingState,
-  } = useContext(PlayerContext);
-  const episode = episodeList[currentEpisodeIndex];
+    hasNext,
+    playNext,
+    hasPrevious,
+    playPrevious,
+    toggleRepeating,
+    isRepeating,
+    toggleShuffling,
+    isShuffling,
+    resetEpisodeList,
+  } = usePlayerContext();
 
+  const episode = episodeList[currentEpisodeIndex];
   const audioRef = useRef<HTMLAudioElement>(null);
+  const [progress, setProgress] = useState(0);
+
+  function setupProgressListener() {
+    audioRef.current.currentTime = 0;
+
+    audioRef.current.addEventListener('timeupdate', () => {
+      setProgress(Math.floor(audioRef.current.currentTime));
+    });
+  }
+
+  function changeCurrentTime(value: number) {
+    audioRef.current.currentTime = value;
+    setProgress(value);
+  }
+
+  function handleEnded() {
+    if (hasNext || isRepeating) {
+      playNext();
+    } else {
+      resetEpisodeList();
+      setProgress(0);
+    }
+  }
 
   useEffect(() => {
     if (!audioRef.current) {
@@ -53,6 +86,9 @@ const Player: React.FC = () => {
           src={episode.url}
           autoPlay
           ref={audioRef}
+          loop={isRepeating}
+          onEnded={() => { return handleEnded(); }}
+          onLoadedMetadata={() => { return setupProgressListener(); }}
           onPlay={() => { return setPlayingState(true); }}
           onPause={() => { return setPlayingState(false); }}
         />
@@ -60,26 +96,34 @@ const Player: React.FC = () => {
 
       <footer className={!episode ? styles.empty : ''}>
         <div className={styles.progress}>
-          <span>00:00</span>
+          <span>{convertDurationToTimeString(progress)}</span>
           <div className={styles.slider}>
             {!episode ? (
               <div className={styles.emptySlider} />
             ) : (
               <Slider
+                max={episode.duration}
+                value={progress}
+                onChange={(value) => { return changeCurrentTime(value); }}
                 trackStyle={{ backgroundColor: '#04d361' }}
                 railStyle={{ backgroundColor: '#9f75ff' }}
                 handleStyle={{ borderColor: '#04d361', borderWidth: 4 }}
               />
             )}
           </div>
-          <span>00:00</span>
+          <span>{convertDurationToTimeString(episode?.duration ?? 0)}</span>
         </div>
 
         <div className={styles.buttons}>
-          <button type="button" disabled={!episode}>
+          <button
+            type="button"
+            className={isShuffling ? styles.isActive : ''}
+            disabled={!episode || episodeList.length <= 1}
+            onClick={() => { return toggleShuffling(); }}
+          >
             <img src="/shuffle.svg" alt="Embaralhar" />
           </button>
-          <button type="button" disabled={!episode}>
+          <button type="button" disabled={!episode || !hasPrevious} onClick={() => { return playPrevious(); }}>
             <img src="/play-previous.svg" alt="Tocar anterior" />
           </button>
           <button
@@ -96,10 +140,15 @@ const Player: React.FC = () => {
               )
             }
           </button>
-          <button type="button" disabled={!episode}>
+          <button type="button" disabled={!episode || !hasNext} onClick={() => { playNext(); }}>
             <img src="/play-next.svg" alt="Tocar próxima" />
           </button>
-          <button type="button" disabled={!episode}>
+          <button
+            type="button"
+            className={isRepeating ? styles.isActive : ''}
+            disabled={!episode}
+            onClick={() => { return toggleRepeating(); }}
+          >
             <img src="/repeat.svg" alt="Repetir" />
           </button>
         </div>

@@ -1,35 +1,13 @@
 import { AppProps } from 'next/dist/next-server/lib/router/router';
-import { useState } from 'react';
 import { Header } from '../components/Header';
 import '../styles/global.scss';
 import styles from '../styles/app.module.scss';
 import { Player } from '../components/Player';
-import { PlayerContext } from '../contexts/PlayerContext';
+import { PlayerContextProvider } from '../contexts/PlayerContext';
 
 const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
-  const [episodeList, setEpisodeList] = useState([]);
-  const [currentEpisodeIndex, setCurrentEpisodeList] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
-
-  function play(episode) {
-    setEpisodeList([episode]);
-    setCurrentEpisodeList(0);
-    setIsPlaying(true);
-  }
-
-  function togglePlay() {
-    setIsPlaying(!isPlaying);
-  }
-
-  function setPlayingState(state: boolean) {
-    setIsPlaying(state);
-  }
-
   return (
-    <PlayerContext.Provider value={{
-      episodeList, currentEpisodeIndex, play, isPlaying, togglePlay, setPlayingState,
-    }}
-    >
+    <PlayerContextProvider>
       <div className={styles.wrapper}>
         <main>
           <Header />
@@ -37,7 +15,7 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
         </main>
         <Player />
       </div>
-    </PlayerContext.Provider>
+    </PlayerContextProvider>
   );
 };
 
